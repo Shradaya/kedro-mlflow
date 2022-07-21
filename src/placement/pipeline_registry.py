@@ -14,7 +14,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
     """
     # data_preprocessing_pipeline = dp.create_pipeline()
     model_training_pipeline = mt.create_pipeline()
-    deploy = input("DO you want to deploy the model? (Y/N)")
+    # deploy = input("DO you want to deploy the model? (Y/N)")
 
     # if deploy == 'Y':
     #     os.system("mlflow models serve -m runs:/7dea1b2c5e8e4f528cbe132892afe078/model --port 1234")

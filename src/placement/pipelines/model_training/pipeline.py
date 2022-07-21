@@ -4,7 +4,7 @@ generated using Kedro 0.18.2
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import model_training_tracking, prepare_hyperparameters, deploy_model
+from .nodes import model_training_tracking, prepare_hyperparameters, deploy_model, tune_hyperparameters
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -13,8 +13,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                         ['params:learning_rate', 'params:colsample_bytree', 'params:subsample'],
                         'parameter',
                         name = 'hpprep'),
-                    node(model_training_tracking,
-                        ['parameter', 'X_train', 'y_train', 'X_valid', 'y_valid'],
+                    node(tune_hyperparameters,
+                        ['X_train', 'y_train', 'X_valid', 'y_valid'],
                         "lightgbm_model",
                         name = 'train')]
                     )
