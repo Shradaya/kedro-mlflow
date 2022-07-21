@@ -34,30 +34,27 @@ def create_experiment(experiment_name):
     return experiment_id
 
 def model_training_tracking(params, X_train, y_train, X_valid, y_valid):
-    # experiment_id = create_experiment("campus_recruitment_experiments")
-    with mlflow.start_run(nested=True) as run:
-        run_id = run.info.run_uuid
-        run_name = run_id  # used to provide a name to the run, helps while comparing different runs
-        run_id_list.append(run_id)
-        mlflow.log_params(params)
-        lgb_clf = LGBMClassifier(**params)
-        lgb_clf.fit(X_train, y_train, 
-                    eval_set = [(X_train, y_train), (X_valid, y_valid)], 
-                    early_stopping_rounds=50,
-                    verbose=20)
+    mlflow.log_params(params)
+    lgb_clf = LGBMClassifier(**params)
+    lgb_clf.fit(X_train, y_train, 
+                eval_set = [(X_train, y_train), (X_valid, y_valid)], 
+                early_stopping_rounds=50,
+                verbose=20)
 
-        mlflow.sklearn.log_model(lgb_clf, "model")
+    mlflow.sklearn.log_model(lgb_clf, "model")
+    
+    lgb_valid_prediction = lgb_clf.predict_proba(X_valid)[:, 1]
+    fpr, tpr, _ = roc_curve(y_valid, lgb_valid_prediction)
+    roc_auc = auc(fpr, tpr) # compute area under the curve
+    print("=====================================")
+    print("Validation AUC:{}".format(roc_auc))
+    auc_metric = {"Validation_AUC": roc_auc}
+    mlflow.log_metrics(auc_metric)
+    print(mlflow.active_run())
+    print(f"Logged metrics {auc_metric}")
+    print("=====================================")
 
-        lgb_valid_prediction = lgb_clf.predict_proba(X_valid)[:, 1]
-        fpr, tpr, _ = roc_curve(y_valid, lgb_valid_prediction)
-        roc_auc = auc(fpr, tpr) # compute area under the curve
-        print("=====================================")
-        print("Validation AUC:{}".format(roc_auc))
-        print("=====================================")   
-
-        # log metrics
-        mlflow.log_metrics({"Validation_AUC": roc_auc})
-        return roc_auc, [run_id,]
+    return lgb_clf
 
 def prepare_hyperparameters(learning_rate, colsample_bytree, subsample):
     param = {
@@ -69,3 +66,7 @@ def prepare_hyperparameters(learning_rate, colsample_bytree, subsample):
         "random_state": 42,
     }
     return param
+
+def deploy_model(run_id):
+    print(run_id)
+    return run_id
