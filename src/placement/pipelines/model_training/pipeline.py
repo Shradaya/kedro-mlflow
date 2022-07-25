@@ -4,17 +4,13 @@ generated using Kedro 0.18.2
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import model_training_tracking, prepare_hyperparameters, deploy_model, tune_hyperparameters
+from .nodes import model_training_tracking, deploy_model, tune_hyperparameters
 
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
-                    [node(prepare_hyperparameters,
-                        ['params:learning_rate', 'params:colsample_bytree', 'params:subsample'],
-                        'parameter',
-                        name = 'hpprep'),
-                    node(tune_hyperparameters,
+                    [node(tune_hyperparameters,
                         ['X_train', 'y_train', 'X_valid', 'y_valid'],
-                        "lightgbm_model",
+                        "auc",
                         name = 'train')]
                     )

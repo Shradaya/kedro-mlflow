@@ -5,6 +5,8 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # Instantiated project hooks.
 # from placement.hooks import ProjectHooks
 # HOOKS = (ProjectHooks(),)
+# from kedro_mlflow.framework.hooks import MlflowHook
+# HOOKS = (MlflowHook(),)
 
 # Installed plugins for which to disable hook auto-registration.
 # DISABLE_HOOKS_FOR_PLUGINS = ("kedro-viz",)

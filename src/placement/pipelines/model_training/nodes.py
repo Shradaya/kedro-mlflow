@@ -23,19 +23,7 @@ import warnings
 import os
 warnings.filterwarnings("ignore")
 
-
-def create_experiment(experiment_name):
-    artifact_repository = './mlflow-run'
-    mlflow.set_tracking_uri('http://127.0.0.1:5000/')
-    client = MlflowClient()
-    try:
-        experiment_id = client.create_experiment(experiment_name, artifact_location=artifact_repository)
-    except:
-        experiment_id = client.get_experiment_by_name(experiment_name).experiment_id
-    return experiment_id
-
 def model_training_tracking(params, X_train, y_train, X_valid, y_valid):
-    mlflow.log_params(params)
     lgb_clf = LGBMClassifier(**params)
     lgb_clf.fit(X_train, y_train, 
                 eval_set = [(X_train, y_train), (X_valid, y_valid)], 
@@ -55,28 +43,24 @@ def model_training_tracking(params, X_train, y_train, X_valid, y_valid):
     print(f"Logged metrics {auc_metric}")
     print("=====================================")
 
-    return lgb_clf
+    return roc_auc
 
-def prepare_hyperparameters(learning_rate, colsample_bytree, subsample):
-    param = {
-        "objective": "binary",
-        "metric": "auc",
-        "learning_rate": learning_rate,
-        "colsample_bytree": colsample_bytree,
-        "subsample": subsample,
-        "random_state": 42,
-    }
-    return param
 
 def objective(X_train, y_train, X_valid, y_valid, trial):
     param = {
         "objective": "binary",
         "metric": "auc",
-        "learning_rate": trial.suggest_float("learning_rate", 1e-2, 1e-1, log=True),
+        "learning_rate": trial.suggest_float("learning_rate", 1e-2, 1e-1),
         "colsample_bytree": trial.suggest_float("colsample_bytree", 0.4, 1.0),
         "subsample": trial.suggest_float("subsample", 0.4, 1.0),
         "random_state": 42,
     }
+    trial_dict = {}
+    trial_count = str(trial.__dict__['_trial_id'])
+    trial_dict[f"trial_{trial_count}_learning_rate"]= param['learning_rate']
+    trial_dict[f"trial_{trial_count}_colsample_bytree"]= param['colsample_bytree']
+    trial_dict[f"trial_{trial_count}_subsample"]= param['subsample']
+    mlflow.log_params(trial_dict)
     auc = model_training_tracking(param, X_train, y_train, X_valid, y_valid)
     return auc
 
@@ -88,12 +72,12 @@ def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
         metric_name=f"test_precision",
         nest_trials=True
     )
-    study.optimize(fun_objective, n_trials=1, callbacks = [mlflc])
+    study.optimize(fun_objective, n_trials=10, callbacks = [mlflc])
+
     trial = study.best_trial
     print('AUC: {}'.format(trial.value))
     print("Best hyperparameters: {}".format(trial.params))
     return trial
 
-def deploy_model(run_id):
-    print(run_id)
-    return run_id
+def deploy_model():
+    pass
