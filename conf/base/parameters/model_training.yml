@@ -8,3 +8,4 @@ n_trials: 5
 learning_rate: 0.1
 colsample_bytree: 0.5
 subsample: 0.6
+model_path: data/06_models/lgb_model

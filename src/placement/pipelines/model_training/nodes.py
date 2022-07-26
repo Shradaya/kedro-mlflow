@@ -79,5 +79,7 @@ def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
     print("Best hyperparameters: {}".format(trial.params))
     return trial
 
-def deploy_model():
-    pass
+def deploy_model(model_path):
+    model = mlflow.pyfunc.load_model(model_path)
+    mlflow.register_model(f"file://{model_path}", "sample-sklearn-mlflow-model")
+    return 'STH'
