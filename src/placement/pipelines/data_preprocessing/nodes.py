@@ -39,9 +39,6 @@ def train_test_spliter(data, numeric_features, categorical_features, target_col)
     return X_train, X_valid, y_train, y_valid
 
 def encode_categorical_features(categorical_features, train, valid):
-    # train.head()
-    # valid.head()
-    # return train, valid
     for feature in categorical_features:
         le = LabelEncoder()
         le.fit(train.loc[:, feature])

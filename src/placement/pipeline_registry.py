@@ -12,7 +12,8 @@ def register_pipelines() -> Dict[str, Pipeline]:
     Returns:
         A mapping from a pipeline name to a ``Pipeline`` object.
     """
-    # data_preprocessing_pipeline = dp.create_pipeline()
+
+    data_preprocessing_pipeline = dp.create_pipeline()
     model_training_pipeline = mt.create_pipeline()
     # deploy = input("DO you want to deploy the model? (Y/N)")
 
@@ -20,6 +21,6 @@ def register_pipelines() -> Dict[str, Pipeline]:
     #     os.system("mlflow models serve -m runs:/7dea1b2c5e8e4f528cbe132892afe078/model --port 1234")
 
 
-    value = {"dp": 'q', "mt":model_training_pipeline, "__default__":model_training_pipeline}
+    value = {"dp": data_preprocessing_pipeline, "mt":model_training_pipeline, "__default__":data_preprocessing_pipeline + model_training_pipeline}
     
     return value
