@@ -15,6 +15,6 @@ def register_pipelines() -> Dict[str, Pipeline]:
     data_preprocessing_pipeline = dp.create_pipeline()
     model_training_pipeline = mt.create_pipeline()
 
-    value = {"dp": data_preprocessing_pipeline, "mt":model_training_pipeline, "__default__":model_training_pipeline}
+    value = {"dp": data_preprocessing_pipeline, "mt":model_training_pipeline, "__default__":data_preprocessing_pipeline + model_training_pipeline}
     
     return value
