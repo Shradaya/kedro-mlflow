@@ -72,7 +72,7 @@ def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
         metric_name=f"test_precision",
         nest_trials=True
     )
-    study.optimize(fun_objective, n_trials=10, callbacks = [mlflc])
+    study.optimize(fun_objective, n_trials=1, callbacks = [mlflc])
 
     trial = study.best_trial
     print('AUC: {}'.format(trial.value))
@@ -81,5 +81,5 @@ def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
 
 def deploy_model(model_path):
     model = mlflow.pyfunc.load_model(model_path)
-    # mlflow.register_model(f"file://{model_path}", "sample-sklearn-mlflow-model")
-    return model
+    mlflow.register_model(f"file://{model_path}", "sample-sklearn-mlflow-model")
+    return model_path
