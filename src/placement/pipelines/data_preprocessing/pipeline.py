@@ -4,29 +4,24 @@ generated using Kedro 0.18.2
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import exclude_feature, read_files, separate_numeric_categoric_feature, train_test_spliter, encode_categorical_features
-
+from .nodes import encode_target_col, exclude_feature, encode_categorical_features, train_test_spliter
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline([
-        node(read_files,
-            ['raw_data'],
-            'data',
-            name = 'read_files'),
+        node(encode_target_col,
+            ['raw_data', 'params:target_col'],
+            ['data', 'target'],
+            name = 'separate_target_and_encode'),
         node(exclude_feature,
-            ['data'],
-            'features',
-            name = 'exclude'),
-        node(separate_numeric_categoric_feature,
-            ['data', 'features'],
-            ['numeric_features', 'categorical_features'],
-            name = 'separate'),
-        node(train_test_spliter,
-            ['data', 'numeric_features', 'categorical_features', 'params:target_col_pre'],
-            ['train', 'valid', 'y_train', 'y_valid'],
-            name = 'split'),
+            ['data', 'params:drop_features'],
+            'prefered_data',
+            name = 'exclude_Features'),
         node(encode_categorical_features,
-            ['categorical_features', 'train', 'valid'],
-            ['X_train', 'X_valid'],
+            ['prefered_data'],
+            'encoded_data',
             name = 'encode'),
+        node(train_test_spliter,
+            ['encoded_data', 'target'],
+            ['X_train', 'X_valid', 'y_train', 'y_valid'],
+            name = 'split')
     ])

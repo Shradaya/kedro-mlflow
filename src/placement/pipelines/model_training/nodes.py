@@ -67,12 +67,7 @@ def objective(X_train, y_train, X_valid, y_valid, trial):
 def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
     study = optuna.create_study(direction='maximize')
     fun_objective = partial(objective, X_train, X_valid, y_test, y_valid)
-    mlflc = optuna.integration.MLflowCallback(
-        tracking_uri=mlflow.get_tracking_uri(),
-        metric_name=f"test_precision",
-        nest_trials=True
-    )
-    study.optimize(fun_objective, n_trials=1, callbacks = [mlflc])
+    study.optimize(fun_objective, n_trials=1)
 
     trial = study.best_trial
     print('AUC: {}'.format(trial.value))
@@ -81,5 +76,5 @@ def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
 
 def deploy_model(model_path):
     model = mlflow.pyfunc.load_model(model_path)
-    mlflow.register_model(f"file://{model_path}", "sample-sklearn-mlflow-model")
+    # mlflow.register_model(f"file://{model_path}", "sample-sklearn-mlflow-model")
     return model_path

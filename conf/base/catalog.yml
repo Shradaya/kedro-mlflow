@@ -4,29 +4,27 @@
 # Link: https://kedro.readthedocs.io/en/stable/data/data_catalog.html
 raw_data:
   type: pandas.CSVDataSet
-  filepath: data/01_raw/Placement_Data_Full_Class.csv
+  filepath: s3://shradaya/mlops/data/01_raw/Placement_data_full_class.csv
 
 X_train:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/X_train.csv
+  filepath: s3://shradaya/mlops/data/03_primary/X_train.csv
 
 y_train:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/y_train.csv
+  filepath: s3://shradaya/mlops/data/03_primary/y_train.csv
 
 X_valid:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/X_valid.csv
+  filepath: s3://shradaya/mlops/data/03_primary/X_valid.csv
 
 y_valid:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/y_valid.csv
+  filepath: s3://shradaya/mlops/data/03_primary/y_valid.csv
 
-lightgbm_model:
-    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-    data_set:
-        type: kedro_mlflow.io.models.MlflowModelSaverDataSet
-        flavor: mlflow.lightgbm
-        filepath: data/06_models/lgb_model
-    # type: kedro_mlflow.io.models.MlflowModelLoggerDataSet
-    # flavor: mlflow.lightgbm
+# lightgbm_model:
+#     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+#     data_set:
+#         type: kedro_mlflow.io.models.MlflowModelSaverDataSet
+#         flavor: mlflow.lightgbm
+#         filepath: s3://shradaya/mlops/data/06_models/lgb_model
