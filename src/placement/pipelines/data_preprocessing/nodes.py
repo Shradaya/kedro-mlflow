@@ -42,12 +42,3 @@ def train_test_spliter(data, target):
     data = data.fillna(0)
     X_train, X_valid, y_train, y_valid = train_test_split(data, target, test_size=0.15, random_state=10)
     return X_train, X_valid, y_train, y_valid
-
-def encode_categorical_features(categorical_features, train, valid):
-    for feature in categorical_features:
-        le = LabelEncoder()
-        le.fit(train.loc[:, feature])
-        train.loc[:, feature] = le.transform(train.loc[:, feature])
-        le.fit(valid.loc[:, feature])
-        valid.loc[:, feature] = le.transform(valid.loc[:, feature])
-    return train, valid
