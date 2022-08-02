@@ -16,6 +16,9 @@ import mlflow
 import mlflow.lightgbm
 from mlflow.tracking import MlflowClient
 import optuna
+import pickle
+import time
+import os
 from functools import partial
 # Hyperparameter tunning library
 
@@ -24,14 +27,8 @@ import os
 warnings.filterwarnings("ignore")
 
 def model_training_tracking(params, X_train, y_train, X_valid, y_valid):
-    lgb_clf = LGBMClassifier(**params)
-    lgb_clf.fit(X_train, y_train, 
-                eval_set = [(X_train, y_train), (X_valid, y_valid)], 
-                early_stopping_rounds=50,
-                verbose=20)
+    lgb_clf = train_model(params, X_train, y_train, X_valid, y_valid)
 
-    mlflow.sklearn.log_model(lgb_clf, "model")
-    
     lgb_valid_prediction = lgb_clf.predict_proba(X_valid)[:, 1]
     fpr, tpr, _ = roc_curve(y_valid, lgb_valid_prediction)
     roc_auc = auc(fpr, tpr) # compute area under the curve
@@ -39,11 +36,19 @@ def model_training_tracking(params, X_train, y_train, X_valid, y_valid):
     print("Validation AUC:{}".format(roc_auc))
     auc_metric = {"Validation_AUC": roc_auc}
     mlflow.log_metrics(auc_metric)
-    print(mlflow.active_run())
     print(f"Logged metrics {auc_metric}")
     print("=====================================")
 
     return roc_auc
+
+def train_model(params, X_train, y_train, X_valid, y_valid):
+    model = LGBMClassifier(**params)
+    model.fit(X_train, y_train, 
+                eval_set = [(X_train, y_train), (X_valid, y_valid)], 
+                early_stopping_rounds=50,
+                verbose=20)
+    pickle.dump(model, open(f"data/06_models/model.pkl", 'wb'))
+    return model
 
 
 def objective(X_train, y_train, X_valid, y_valid, trial):
@@ -72,7 +77,9 @@ def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
     trial = study.best_trial
     print('AUC: {}'.format(trial.value))
     print("Best hyperparameters: {}".format(trial.params))
-    return trial
+    return trial.params
+
+
 
 def deploy_model(model_path):
     model = mlflow.pyfunc.load_model(model_path)

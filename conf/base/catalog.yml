@@ -22,9 +22,10 @@ y_valid:
   type: pandas.CSVDataSet
   filepath: s3://shradaya/mlops/data/03_primary/y_valid.csv
 
-# lightgbm_model:
-#     type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
-#     data_set:
-#         type: kedro_mlflow.io.models.MlflowModelSaverDataSet
-#         flavor: mlflow.lightgbm
-#         filepath: s3://shradaya/mlops/data/06_models/lgb_model
+lightgbm_model:
+    type: kedro_mlflow.io.artifacts.MlflowArtifactDataSet
+    data_set:
+        type: kedro_mlflow.io.models.MlflowModelSaverDataSet
+        flavor: mlflow.lightgbm
+        filepath: /data/06_models/lgb_model
+    # artifact_path: s3://shradaya/mlops/data/06_models/
