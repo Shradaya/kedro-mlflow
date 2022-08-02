@@ -4,7 +4,7 @@ generated using Kedro 0.18.2
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import deploy_model, tune_hyperparameters, train_model
+from .nodes import deploy_model, tune_hyperparameters, train_model, save_model
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -17,6 +17,11 @@ def create_pipeline(**kwargs) -> Pipeline:
                         ['best_param', 'X_train', 'y_train', 'X_valid', 'y_valid'],
                         'lightgbm_model',
                         name = 'train'),
+                    node(save_model,
+                        ['lightgbm_model', 'X_valid', 'y_valid'],
+                        'score',
+                        name = 'save_model'),
+                    
                     # node(deploy_model,
                     #     'params:model_path',
                     #     "sth",

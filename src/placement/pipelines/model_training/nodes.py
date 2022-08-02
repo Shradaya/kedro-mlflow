@@ -28,6 +28,7 @@ warnings.filterwarnings("ignore")
 
 def model_training_tracking(params, X_train, y_train, X_valid, y_valid):
     lgb_clf = train_model(params, X_train, y_train, X_valid, y_valid)
+    mlflow.log_metrics({"Score": lgb_clf.score(X_valid, y_valid)})
 
     lgb_valid_prediction = lgb_clf.predict_proba(X_valid)[:, 1]
     fpr, tpr, _ = roc_curve(y_valid, lgb_valid_prediction)
@@ -47,7 +48,6 @@ def train_model(params, X_train, y_train, X_valid, y_valid):
                 eval_set = [(X_train, y_train), (X_valid, y_valid)], 
                 early_stopping_rounds=50,
                 verbose=20)
-    pickle.dump(model, open(f"data/06_models/model.pkl", 'wb'))
     return model
 
 
@@ -72,13 +72,18 @@ def objective(X_train, y_train, X_valid, y_valid, trial):
 def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
     study = optuna.create_study(direction='maximize')
     fun_objective = partial(objective, X_train, X_valid, y_test, y_valid)
-    study.optimize(fun_objective, n_trials=1)
+    study.optimize(fun_objective, n_trials=10)
 
     trial = study.best_trial
     print('AUC: {}'.format(trial.value))
     print("Best hyperparameters: {}".format(trial.params))
     return trial.params
 
+def save_model(model, X_valid, y_valid):
+    score = pd.DataFrame({'score' : [model.score(X_valid, y_valid)]})
+    pickle.dump(model, open(f"data/06_models/model.pkl", 'wb'))
+    score.to_csv("data/06_models/score.csv")
+    return score
 
 
 def deploy_model(model_path):
