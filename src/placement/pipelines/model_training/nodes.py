@@ -80,9 +80,10 @@ def tune_hyperparameters(X_train, X_valid, y_test, y_valid):
     return trial.params
 
 def save_model(model, X_valid, y_valid):
+    mlflow.sklearn.save_model(model, 'data/06_models/model')
     score = pd.DataFrame({'score' : [model.score(X_valid, y_valid)]})
-    pickle.dump(model, open(f"data/06_models/model.pkl", 'wb'))
-    score.to_csv("data/06_models/score.csv")
+    # pickle.dump(model, open(f"data/06_models/model.pkl", 'wb'))
+    score.to_csv("data/06_models/model/score.csv")
     return score
 
 
